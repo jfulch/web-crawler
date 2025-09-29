@@ -20,6 +20,10 @@ import os
 from collections import defaultdict, Counter
 from datetime import datetime
 import re
+import ssl
+
+# Fix for SSL certificate issues on macOS
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class StatisticsCollector:
@@ -278,6 +282,9 @@ class WebCrawler:
         """Worker thread for crawling"""
         print(f"Thread {thread_id} started")
         
+        empty_queue_count = 0
+        max_empty_attempts = 5  # Wait for 5 empty queue attempts before exiting
+        
         while not self.stop_crawling:
             # Check if we've reached max pages
             with self.fetch_lock:
@@ -288,9 +295,11 @@ class WebCrawler:
             # Get URL from queue
             try:
                 url, depth = self.url_queue.get(timeout=2)
+                empty_queue_count = 0  # Reset counter on successful get
             except Empty:
-                # Queue is empty, check if we should continue waiting
-                if self.url_queue.empty() and self.pages_fetched > 0:
+                empty_queue_count += 1
+                # If queue has been empty multiple times and we've fetched some pages, exit
+                if empty_queue_count >= max_empty_attempts and self.pages_fetched > 0:
                     break
                 continue
             
@@ -509,12 +518,12 @@ def main():
     SEED_URL = SEED_URLS[SITE_NAME]
     
     # Crawler parameters
-    MAX_PAGES = 100  # As per homework update
+    MAX_PAGES = 10000  # As per homework update
     MAX_DEPTH = 16
     NUM_THREADS = 7
     POLITENESS_DELAY = 2.0  # seconds
     
-    # Student information (UPDATE THESE!)
+    # Student information
     STUDENT_NAME = 'Jesse Fulcher'
     USC_ID = '7451958545'
     

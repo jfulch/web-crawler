@@ -1,0 +1,34 @@
+Name: Jesse Fulcher
+USC ID: 7451958545
+News site crawled: www.nytimes.com
+Number of threads: 7
+
+Fetch Statistics
+================
+# fetches attempted: 100
+# fetches succeeded: 100
+# fetches failed or aborted: 0
+
+Outgoing URLs:
+==============
+Total URLs extracted: 16575
+# unique URLs extracted: 2658
+# unique URLs within News Site: 1896
+# unique URLs outside News Site: 762
+
+Status Codes:
+=============
+200 OK: 100
+
+File Sizes:
+===========
+< 1KB: 0
+1KB ~ <10KB: 5
+10KB ~ <100KB: 1
+100KB ~ <1MB: 91
+>= 1MB: 2
+
+Content Types:
+==============
+image/png: 4
+text/html: 95
