@@ -8,19 +8,18 @@ Supports multi-threading, respects robots.txt, and filters by content type.
 Author: Jesse Fulcher (7451958545) - Generated with assistance from GitHub Copilot (Claude Sonnet)
 """
 
+import re
+import ssl
 import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse, urldefrag
-from urllib.robotparser import RobotFileParser
-import threading
-from queue import Queue, Empty
 import csv
 import time
 import os
-from collections import defaultdict, Counter
-from datetime import datetime
-import re
-import ssl
+import threading
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse, urldefrag
+from urllib.robotparser import RobotFileParser
+from queue import Queue, Empty
+from collections import Counter
 
 # Fix for SSL certificate issues on macOS
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -33,13 +32,13 @@ class StatisticsCollector:
         self.lock = threading.Lock()
         
         # Fetch statistics
-        self.fetch_attempts = []  # [(url, status_code), ...]
+        self.fetch_attempts = [] 
         
         # Visit statistics  
-        self.successful_visits = []  # [(url, size, outlinks, content_type), ...]
+        self.successful_visits = [] 
         
         # URLs discovered
-        self.discovered_urls = []  # [(url, indicator), ...] where indicator is 'OK' or 'N_OK'
+        self.discovered_urls = [] 
         
         # Status code counter
         self.status_codes = Counter()
@@ -60,7 +59,7 @@ class StatisticsCollector:
         self.unique_urls_extracted = set()
         self.unique_urls_within_site = set()
         self.unique_urls_outside_site = set()
-        self.visited_urls = set()  # To avoid re-crawling
+        self.visited_urls = set() 
         
     def add_fetch_attempt(self, url, status_code):
         """Record a fetch attempt"""
@@ -71,7 +70,6 @@ class StatisticsCollector:
     def add_successful_visit(self, url, size, outlinks, content_type):
         """Record a successful visit"""
         with self.lock:
-            # Clean content type (remove charset)
             clean_content_type = content_type.split(';')[0].strip()
             self.successful_visits.append((url, size, outlinks, clean_content_type))
             self.content_types[clean_content_type] += 1
@@ -249,13 +247,13 @@ class WebCrawler:
             return status_code, response.content, content_type, size
             
         except requests.Timeout:
-            return 408, None, None, 0  # Request Timeout
+            return 408, None, None, 0  
         except requests.ConnectionError:
-            return 503, None, None, 0  # Service Unavailable
+            return 503, None, None, 0  
         except Exception as e:
             print(f"Error fetching {url}: {e}")
-            return 500, None, None, 0  # Internal Server Error
-    
+            return 500, None, None, 0
+
     def extract_links(self, html_content, base_url):
         """Extract all links from HTML content"""
         links = []
@@ -283,7 +281,7 @@ class WebCrawler:
         print(f"Thread {thread_id} started")
         
         empty_queue_count = 0
-        max_empty_attempts = 5  # Wait for 5 empty queue attempts before exiting
+        max_empty_attempts = 5  
         
         while not self.stop_crawling:
             # Check if we've reached max pages
@@ -295,7 +293,8 @@ class WebCrawler:
             # Get URL from queue
             try:
                 url, depth = self.url_queue.get(timeout=2)
-                empty_queue_count = 0  # Reset counter on successful get
+                # Reset counter on successful get
+                empty_queue_count = 0  
             except Empty:
                 empty_queue_count += 1
                 # If queue has been empty multiple times and we've fetched some pages, exit
@@ -504,7 +503,7 @@ class WebCrawler:
 def main():
     """Main function to run the crawler"""
     
-    # Configuration - MODIFY THESE BASED ON YOUR NEEDS
+    # Seed URLs for different news sites
     SEED_URLS = {
         'nytimes': 'https://www.nytimes.com',
         'wsj': 'https://www.wsj.com',
@@ -514,11 +513,11 @@ def main():
     }
     
     # Choose which site to crawl
-    SITE_NAME = 'nytimes'  # Change this to crawl different sites
+    SITE_NAME = 'nytimes'  
     SEED_URL = SEED_URLS[SITE_NAME]
     
     # Crawler parameters
-    MAX_PAGES = 10000  # As per homework update
+    MAX_PAGES = 10000 
     MAX_DEPTH = 16
     NUM_THREADS = 7
     POLITENESS_DELAY = 2.0  # seconds
